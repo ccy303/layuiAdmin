@@ -15,6 +15,9 @@ clientHttp = function (url, data, method, callback) {
             withCredentials: true // 这里设置了withCredentials
         },
         success: function (res) {
+            if (res.code == 1001) {
+                top.location.href = '../../index.html';
+            }
             callback.call(this, res)
         },
         error: function () {
