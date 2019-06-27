@@ -13,8 +13,6 @@
 </head>
 
 <body>
-    <div style="font-size: 25px;font-weight: bold;padding: 30px">当前公告</div>
-    <div style="padding-left: 30px" id="tip"></div>
     <div class="page-content-wrap">
         <textarea id="text" style="display: none;"></textarea>
     </div>
@@ -64,7 +62,7 @@
         }
         clientHttp('/setting/announcement', {}, 'GET', function (res) {
             console.log(res);
-            $('#tip').html(res.data.value)
+            layedit.setContent(index, res.data.value);
         })
     </script>
 </body>
