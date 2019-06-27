@@ -33,7 +33,7 @@
 						<col width="20%">
 						<col width="20%">
 						<col class="hidden-xs" width="20%">
-						<col class="hidden-xs" width="20%">
+						<col width="20%">
 					</colgroup>
 					<thead>
 						<tr>
@@ -42,7 +42,7 @@
 							<th>用户名</th>
 							<th class="hidden-xs">欢迎信息</th>
 							<!-- <th>状态</th> -->
-							<th class="hidden-xs">操作</th>
+							<th>操作</th>
 						</tr>
 					</thead>
 					<tbody id="tbody">
@@ -74,7 +74,10 @@
 			})
 		}
 		var delKeFu = function (e) {
-			layer.confirm('确定要删除此客服?', { icon: 3, title: '提示' }, function (index) {
+			layer.confirm('确定要删除此客服?', {
+				icon: 3,
+				title: '提示'
+			}, function (index) {
 				clientHttp('/staff/' + e, {}, 'DELETE', function (res) {
 					if (res.code == 0) {
 						layer.msg('删除成功', {
@@ -106,18 +109,24 @@
 								$('#tbody').empty();
 								for (var i in res.data.list) {
 									var pictureUrl = res.data.list[i].avatar;
-									pictureUrl = JSON.stringify(pictureUrl);
+									// pictureUrl = JSON.stringify(pictureUrl);
 									$('#tbody').append("<tr>" +
-										"<td class='hidden-xs'>" + res.data.list[i].id + "</td>" +
-										"<td onClick='loadHeaderPicture(" + pictureUrl + ")' style='cursor: pointer;color:#1E9FFF'>点击查看</td>" +
+										"<td class='hidden-xs'>" + res.data.list[i]
+										.id + "</td>" +
+										"<td style='cursor: pointer;color:#1E9FFF'><img width='50' src='" +
+										res.data.list[i].avatar + "'></td>" +
 										"<td>" + res.data.list[i].username + "</td>" +
-										"<td class='hidden-xs'>" + res.data.list[i].sign + "</td>" +
-										"<td class='hidden-xs'>" +
+										"<td class='hidden-xs'>" + res.data.list[i]
+										.sign + "</td>" +
+										"<td>" +
 										"<div class='layui-inline'>" +
 										"<button class='layui-btn layui-btn-small layui-btn-normal' data-id='1'" +
-										"onClick='editerInfo(" + JSON.stringify(res.data.list[i]) + ")'><i class='layui-icon'>&#xe642;</i></button>" +
+										"onClick='editerInfo(" + JSON.stringify(res
+											.data.list[i]) +
+										")'><i class='layui-icon'>&#xe642;</i></button>" +
 										"<button class='layui-btn layui-btn-small layui-btn-danger' data-id='1'" +
-										"onClick='delKeFu(" + res.data.list[i].id + ")'><i class='layui-icon'>&#xe640;</i></button>" +
+										"onClick='delKeFu(" + res.data.list[i].id +
+										")'><i class='layui-icon'>&#xe640;</i></button>" +
 										"</div>" +
 										"</td>" +
 										"</tr>")
