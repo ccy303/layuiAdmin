@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+   <meta charset="UTF-8">
+   <meta name="renderer" content="webkit">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+   <meta name="viewport"
+      content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+   <title></title>
+   <link rel="stylesheet" type="text/css" href="../../static/admin/layui/css/layui.css" />
+   <link rel="stylesheet" type="text/css" href="../../static/admin/css/admin.css" />
+</head>
+
+<body>
+   <div class="page-content-wrap">
+      <form class="layui-form">
+         <div class="layui-tab" style="margin: 0;">
+            <ul class="layui-tab-title">
+               <li><a href="kefu-manager.html">客服列表</a></li>
+               <li class="layui-this">编辑客服信息</li>
+            </ul>
+            <div class="layui-tab-content">
+               <div class="layui-tab-item"></div>
+               <div class="layui-tab-item layui-show">
+                  <div class="layui-form-item">
+                     <label class="layui-form-label">客服账号：</label>
+                     <div class="layui-input-block">
+                        <input type="text" name="userName" required lay-verify="required" placeholder="请输入客服账号"
+                           autocomplete="off" class="layui-input">
+                     </div>
+                  </div>
+                  <div class="layui-form-item">
+                     <label class="layui-form-label">新密码：</label>
+                     <div class="layui-input-block">
+                        <input type="password" name="password" required lay-verify="" placeholder="请输入新密码"
+                           autocomplete="off" class="layui-input">
+                     </div>
+                  </div>
+                  <div class="layui-form-item">
+                     <label class="layui-form-label">确认密码：</label>
+                     <div class="layui-input-block">
+                        <input type="password" name="password_1" required lay-verify="" placeholder="请输入密码"
+                           autocomplete="off" class="layui-input">
+                     </div>
+                  </div>
+                  <div class="layui-form-item">
+                     <label class="layui-form-label">欢迎信息：</label>
+                     <div class="layui-input-block">
+                        <input type="text" name="sign" required lay-verify="required" placeholder="请输欢迎信息"
+                           autocomplete="off" class="layui-input">
+                     </div>
+                  </div>
+                  <div class="">
+                     <label class="layui-form-label">头像上传：</label>
+                     <div class="layui-input-block">
+                        <input onchange="filechenage()" type="file" name="" class="" id="flie">
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </div> 
+         <div>
+            <img style="width: 150px;height: 150px;margin: 0 0 30px 110px" id="image"
+               src="./../../static/admin/images/cc17b689dc16c4cffd2aedd981936529.jpg" alt="">
+         </div>
+         <div class="layui-form-item" style="padding-left: 10px;">
+            <div class="layui-input-block">
+               <button class="layui-btn layui-btn-normal" lay-submit="submit" lay-filter="formDemo">立即提交</button>
+            </div>
+         </div>
+      </form>
+   </div>
+
+   <script src="../../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+   <script src="../../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
+   <script src="../jquery.js"></script>
+   <script src="../commit.js"></script>
+   <script>
+      var sesstionInfo = sessionStorage.getItem('editerInfo');
+      sesstionInfo = JSON.parse(sesstionInfo);
+      $('input[name=userName]').val(sesstionInfo.username);
+      $('input[name=sign]').val(sesstionInfo.sign);
+      $('img#image').attr('src', sesstionInfo.avatar);
+      var dataFile = new FormData();
+      var picture = ''
+      filechenage = function () {
+         dataFile.append('file', $('#flie')[0].files[0]);
+         $.ajax({
+            url: API + '/upload',
+            data: dataFile,
+            type: 'POST',
+            processData: false,
+            contentType: false,
+            async: false,
+            cache: false,
+            xhrFields: {
+               withCredentials: true
+            },
+            success: function (res) {
+               picture = res.data.src;
+               $('img#image').attr('src', picture);
+            }
+         })
+      }
+      layui.use(['form', 'jquery', 'laydate', 'layer', 'laypage', 'dialog', 'element', 'upload', 'layedit'],
+         function () {
+            var form = layui.form(),
+               layer = layui.layer,
+               $ = layui.jquery,
+               laypage = layui.laypage,
+               laydate = layui.laydate,
+               layedit = layui.layedit,
+               element = layui.element(),
+               dialog = layui.dialog;
+            form.on('submit(formDemo)', function (data) {
+               if (data.field.password !== data.field.password_1) {
+                  layer.msg('两次密码输入不一致');
+                  return false
+               }
+               if (!picture) {
+                  picture = sesstionInfo.avatar;
+               }
+               clientHttp('/staff/' + sesstionInfo.id, {
+                  "username": data.field.userName,
+                  "password": data.field.password,
+                  "sign": data.field.sign,
+                  "avatar": picture
+               }, 'PUT', function (res) {
+                  if (res.code == 0) {
+                     layer.msg('跟新成功', {
+                        time: 1000
+                     }, function () {
+                        sessionStorage.setItem(editerInfo, JSON.stringify(res.data))
+                        window.location.reload();
+                     });
+                  } else {
+                     layer.msg(res.msg)
+                  }
+               })
+               return false;
+            });
+         });
+   </script>
+</body>
+
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html class="iframe-h">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport"
+		content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="../../static/admin/layui/css/layui.css" />
+	<link rel="stylesheet" type="text/css" href="../../static/admin/css/admin.css" />
+	<style>
+	</style>
+</head>
+
+<body>
+	<div class="wrap-container clearfix">
+		<div class="column-content-detail">
+			<form class="layui-form" action="">
+				<div class="layui-form-item">
+					<div class="layui-inline tool-btn">
+						<button class="layui-btn layui-btn-small layui-btn-normal go-btn" data-url="add-kefu.html">
+							<i class="layui-icon">&#xe654;</i>
+						</button>
+					</div>
+				</div>
+			</form>
+			<div class="layui-form" id="table-list">
+				<table class="layui-table" lay-even lay-skin="row">
+					<colgroup>
+						<col class="hidden-xs" width="20%">
+						<col width="20%">
+						<col width="20%">
+						<col class="hidden-xs" width="20%">
+						<col class="hidden-xs" width="20%">
+					</colgroup>
+					<thead>
+						<tr>
+							<th class="hidden-xs">ID</th>
+							<th>头像</th>
+							<th>用户名</th>
+							<th class="hidden-xs">欢迎信息</th>
+							<!-- <th>状态</th> -->
+							<th class="hidden-xs">操作</th>
+						</tr>
+					</thead>
+					<tbody id="tbody">
+					</tbody>
+				</table>
+				<div class="page-wrap" id="page-wrap">
+				</div>
+			</div>
+		</div>
+	</div>
+	<script src="../../static/admin/layui/layui.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../../static/admin/js/common.js" type="text/javascript" charset="utf-8"></script>
+	<script src="../jquery.js"></script>
+	<script src="../commit.js"></script>
+	<script>
+		var loadHeaderPicture = function (src) {
+			var dom = "<div><img style='width:150px;' src='" + src + "'></div>"
+			layer.open({
+				type: 1,
+				content: dom,
+			});
+		}
+		var getList = function (page, callback) {
+			clientHttp('/staffs', {
+				page: page,
+				pageSize: 10
+			}, 'GET', function (res) {
+				callback && callback.call(this, res)
+			})
+		}
+		var delKeFu = function (e) {
+			layer.confirm('确定要删除此客服?', { icon: 3, title: '提示' }, function (index) {
+				clientHttp('/staff/' + e, {}, 'DELETE', function (res) {
+					if (res.code == 0) {
+						layer.msg('删除成功', {
+							time: 1000
+						}, function () {
+							layer.close(index);
+							window.location.reload();
+						})
+					}
+				})
+			});
+		}
+		var editerInfo = function (arg) {
+			sessionStorage.setItem('editerInfo', JSON.stringify(arg));
+			window.location.href = 'editerInfo.html';
+		}
+		getList(1, function (res) {
+			layui.use(['laypage', 'layer'], function () {
+				var laypage = layui.laypage,
+					layer = layui.layer;
+				laypage({
+					cont: 'page-wrap',
+					pages: res.data.pagination.totalPage,
+					curr: res.data.pagination.page,
+					skin: '#1E9FFF',
+					jump: function (obj, first) {
+						getList(obj.curr, function (res) {
+							if (res.code == 0) {
+								$('#tbody').empty();
+								for (var i in res.data.list) {
+									var pictureUrl = res.data.list[i].avatar;
+									pictureUrl = JSON.stringify(pictureUrl);
+									$('#tbody').append("<tr>" +
+										"<td class='hidden-xs'>" + res.data.list[i].id + "</td>" +
+										"<td onClick='loadHeaderPicture(" + pictureUrl + ")' style='cursor: pointer;color:#1E9FFF'>点击查看</td>" +
+										"<td>" + res.data.list[i].username + "</td>" +
+										"<td class='hidden-xs'>" + res.data.list[i].sign + "</td>" +
+										"<td class='hidden-xs'>" +
+										"<div class='layui-inline'>" +
+										"<button class='layui-btn layui-btn-small layui-btn-normal' data-id='1'" +
+										"onClick='editerInfo(" + JSON.stringify(res.data.list[i]) + ")'><i class='layui-icon'>&#xe642;</i></button>" +
+										"<button class='layui-btn layui-btn-small layui-btn-danger' data-id='1'" +
+										"onClick='delKeFu(" + res.data.list[i].id + ")'><i class='layui-icon'>&#xe640;</i></button>" +
+										"</div>" +
+										"</td>" +
+										"</tr>")
+								}
+							}
+						})
+					}
+				});
+			})
+		})
+	</script>
+</body>
+
+</html>
